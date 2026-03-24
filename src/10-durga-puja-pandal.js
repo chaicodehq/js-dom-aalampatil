@@ -91,24 +91,98 @@
  */
 export function createPandalElement(pandal) {
   // Your code here
+  if (
+    !pandal ||
+    typeof pandal.name !== "string" ||
+    typeof pandal.zone !== "string" ||
+    typeof pandal.theme !== "string" ||
+    typeof pandal.budget !== "number" ||
+    typeof pandal.rating !== "number"
+  ) {
+    return null;
+  }
+
+  const { name, zone, theme, budget, rating } = pandal;
+
+  const div = document.createElement("div");
+  div.className = "pandal";
+
+  div.dataset.name = name;
+  div.dataset.zone = zone;
+  div.dataset.theme = theme;
+  div.dataset.budget = budget;
+  div.dataset.rating = rating;
+
+  div.textContent = name;
+
+  return div;
 }
 
 export function getPandalInfo(element) {
   // Your code here
+  if (!element) return null
+
+  const obj = {
+    name: element.dataset.name,
+    zone: element.dataset.zone,
+    theme: element.dataset.theme,
+    budget: Number(element.dataset.budget),
+    rating: Number(element.dataset.rating)
+  }
+
+  return obj
 }
 
 export function updatePandalRating(element, newRating) {
   // Your code here
+  if (!element) return null
+  if (typeof newRating !== "number" || newRating < 0 || newRating > 5) return null
+  const rating = Number(element.dataset.rating)
+  element.dataset.rating = newRating;
+  return rating
 }
 
 export function filterPandalsByZone(container, zone) {
   // Your code here
+  if (!container || typeof zone !== "string") return []
+  let matches = [];
+  Array.from(container.children).forEach((el) => {
+    if (el.dataset.zone === zone) {
+      matches.push(el)
+    }
+  })
+
+  return matches
 }
 
 export function getPandalsByBudgetRange(container, min, max) {
   // Your code here
+  if (!container || typeof min !== "number" || typeof max !== "number") return []
+  let matches = [];
+  Array.from(container.children).forEach((el) => {
+    if (el.dataset.budget >= min && el.dataset.budget <= max) {
+      matches.push(el)
+    }
+  })
+  return matches
 }
 
 export function sortPandalsByRating(container) {
   // Your code here
+  if (!container) return [];
+
+  // Get all pandal elements
+  const pandals = Array.from(container.querySelectorAll('.pandal'));
+
+  // Sort by data-rating (descending)
+  pandals.sort((a, b) => {
+    const ratingA = Number(a.dataset.rating);
+    const ratingB = Number(b.dataset.rating);
+    return ratingB - ratingA;
+  });
+
+  // Re-append in sorted order
+  pandals.forEach(pandal => container.appendChild(pandal));
+
+  return pandals;
 }

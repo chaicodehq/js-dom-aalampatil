@@ -85,20 +85,144 @@
  */
 export function validateName(name) {
   // Your code here
+  if (typeof name !== "string") {
+    return { valid: false, error: "Naam string hona chahiye" }
+  }
+
+  if (!/^[a-zA-Z\s]+$/.test(name)) {
+    return { valid: false, error: "Naam mein sirf letters aur spaces allowed hain" };
+  }
+
+  if (name.length < 2) {
+    return { valid: false, error: "Naam mein kam se kam 2 characters hone chahiye" };
+  }
+
+  if (name.length > 50) {
+    return { valid: false, error: "Naam 50 characters se zyada nahi ho sakta" };
+  }
+
+  return { valid: true, error: null }
 }
 
 export function validateDate(dateString) {
   // Your code here
+  if (typeof dateString !== "string" || !dateString) {
+    return { valid: false, error: "Date string honi chahiye" }
+  }
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(dateString)) {
+    return { valid: false, error: "Date YYYY-MM-DD format mein honi chahiye" };
+  }
+
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return { valid: false, error: "Invalid date" };
+  }
+
+  const inputDate = new Date(dateString);
+
+  if (isNaN(inputDate.getTime())) {
+    return { valid: false, error: "Invalid date" };
+  }
+
+  // today midnight
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (inputDate < today) {
+    return { valid: false, error: "Date aaj ya future ki honi chahiye" };
+  }
+
+  return { valid: true, error: null };
 }
 
 export function validateAartiType(type) {
   // Your code here
+  if (!type || typeof type !== "string") {
+    return { valid: false, error: "Aarti type string hona chahiye" }
+  }
+
+  const t = ["morning", "evening", "special"];
+  if (!t.includes(type)) {
+    return { valid: false, error: "Aarti type morning, evening, ya special mein se hona chahiye" }
+  }
+  return { valid: true, error: null }
 }
 
 export function setupAartiForm(formElement, onSuccess, onError) {
   // Your code here
+  if (!formElement || typeof onSuccess !== "function" || typeof onError !== "function") {
+    return null;
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const name = formElement.elements.name?.value?.trim();
+    const date = formElement.elements.date?.value?.trim();
+    const aartiType = formElement.elements.aartiType?.value?.trim();
+
+    const errors = [];
+
+    const nameValidation = validateName(name);
+    const dateValidation = validateDate(date);
+    const typeValidation = validateAartiType(aartiType);
+
+    if (!nameValidation.valid) errors.push(nameValidation.error);
+    if (!dateValidation.valid) errors.push(dateValidation.error);
+    if (!typeValidation.valid) errors.push(typeValidation.error);
+
+    if (errors.length > 0) {
+      onError(errors);
+      return;
+    }
+
+    onSuccess({ name, date, aartiType });
+  }
+
+  formElement.addEventListener("submit", handleSubmit);
+
+  // cleanup function
+  return function cleanup() {
+    formElement.removeEventListener("submit", handleSubmit);
+  };
 }
 
 export function createBookingSummary(booking) {
   // Your code here
+  if (
+    !booking ||
+    !booking.name ||
+    !booking.date ||
+    !booking.aartiType
+  ) {
+    return null;
+  }
+
+  const container = document.createElement("div");
+  container.className = "booking-summary";
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Booking Confirmation";
+
+  const name = document.createElement("p");
+  name.className = "booking-name";
+  name.textContent = `Bhakt: ${booking.name}`;
+
+  const date = document.createElement("p");
+  date.className = "booking-date";
+  date.textContent = `Date: ${booking.date}`;
+
+  const type = document.createElement("p");
+  type.className = "booking-type";
+  type.textContent = `Aarti: ${booking.aartiType}`;
+
+  container.appendChild(heading);
+  container.appendChild(name);
+  container.appendChild(date);
+  container.appendChild(type);
+
+  return container;
 }
