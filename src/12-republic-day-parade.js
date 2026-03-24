@@ -216,7 +216,6 @@ export function setupParadeDashboard(container) {
         el.classList.remove("highlight");
       }
     });
-
     return count;
   }
 
